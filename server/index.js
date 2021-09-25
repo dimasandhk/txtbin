@@ -6,6 +6,6 @@ require("./db/connect");
 app.use(express.json());
 
 // Routers
-app.use(require("./routes/text"));
+app.use("/api", require("./routes/text-dev"));
 
 app.listen(PORT, () => console.log(`Up on port ${PORT}`));
