@@ -7,5 +7,6 @@ app.use(express.json());
 
 // Routers
 app.use("/api", require("./routes/text-dev"));
+app.use(require("./routes/text-client"));
 
 app.listen(PORT, () => console.log(`Up on port ${PORT}`));
