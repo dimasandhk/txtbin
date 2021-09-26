@@ -10,8 +10,8 @@
 	"license": "ISC",
 	"dependencies": {
 		"express": "^4.17.1",
-		"moment": "^2.29.1",
-		"mongoose": "^6.0.7"
+		"mongoose": "^6.0.7",
+		"node-mailjet": "^3.3.4"
 	},
 	"devDependencies": {
 		"nodemon": "^2.0.12"
