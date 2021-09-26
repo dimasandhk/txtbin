@@ -5,18 +5,21 @@ const decode = (b64) => {
 	return Buffer.from(b64, "base64").toString("ascii");
 };
 
-router.get("/pb/:pb/text/:id", async (req, res) => {
-	const { pb, id } = req.params;
-	const noParams = !id || !pb;
+router.get("/raw/:data", async (req, res) => {
+	const { data } = req.params;
+	const noParams = !data;
 
 	if (noParams) {
-		return res.status(400).send({ error: "Params (id, pb) are required" });
+		return res.status(400).send({ error: "Params data are required" });
 	}
 
-	const arrParams = [decode(pb), id];
+	const objParams = {
+		pb: decode(data.split(".")[0]),
+		id: data.split(".")[1]
+	};
 
 	try {
-		const filteredText = await TxtBin.findOne({ _id: arrParams[1], publisher: arrParams[0] });
+		const filteredText = await TxtBin.findOne({ _id: objParams.id, publisher: objParams.pb });
 		if (!filteredText) {
 			return res.status(404).send({ error: "Text Not Found" });
 		}
