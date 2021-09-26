@@ -15,22 +15,26 @@ router.post("/text-create", async (req, res) => {
 	}
 });
 
-router.get("/text-info/pb/:pb/id/:id", async (req, res) => {
-	const { id, pb } = req.params;
-	const selectedText = await TxtBin.findOne({ publisher: pb, _id: id });
+router.get("/text-info/id/:id", async (req, res) => {
+	const { id } = req.params;
 
-	const noParams = !id || !pb;
+	const noParams = !id;
 	if (noParams) {
 		return res.status(400).send({
-			error: "Pb and Id Params are required"
+			error: "Id Param are required"
 		});
 	}
 
-	if (!selectedText) {
-		return res.status(404).send({ error: "Text Info Not Found" });
-	}
+	try {
+		const selectedText = await TxtBin.findById(id);
+		if (!selectedText) {
+			return res.status(404).send({ error: "Text Info Not Found" });
+		}
 
-	res.send(selectedText);
+		res.send(selectedText);
+	} catch (err) {
+		res.status(400).send(err);
+	}
 });
 
 module.exports = router;
