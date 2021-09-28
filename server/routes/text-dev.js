@@ -1,5 +1,14 @@
 const router = require("express").Router();
 const TxtBin = require("../models/txt_models");
+require("dotenv").config();
+
+const mailjet = require("node-mailjet").connect(
+	process.env.MJ_APIKEY_PUBLIC,
+	process.env.MJ_APIKEY_PRIVATE
+);
+
+const generateOtp = require("../utils/OTP");
+const { isEmail } = require("validator");
 
 router.post("/text-create", async (req, res) => {
 	const encoded = Buffer.from(req.body.publisher).toString("base64");
@@ -32,6 +41,44 @@ router.get("/text-info/id/:id", async (req, res) => {
 		res.send(selectedText);
 	} catch (err) {
 		res.status(400).send(err);
+	}
+});
+
+router.get("/auth-email", async (req, res) => {
+	const email = req.query.em;
+	if (email) {
+		if (!isEmail(email)) return res.status(400).send({ error: "Email isn't valid" });
+	} else {
+		return res.status(400).send({ error: "Email Query is required!" });
+	}
+
+	const OTP = generateOtp();
+
+	try {
+		await mailjet.post("send", { version: "v3.1" }).request({
+			Messages: [
+				{
+					From: {
+						Email: "dimasandhikadiputra@gmail.com",
+						Name: "TxtBin Admin"
+					},
+					To: [
+						{
+							Email: email
+						}
+					],
+					Subject: "TxtBin - Verify your Email",
+					HTMLPart: `
+					<h3>Hi Welcome to TxtBin!</h3>
+					<p>Your Verification Code is <b>${OTP}</b>, never share your OTP to anyone!</p>
+					`
+				}
+			]
+		});
+
+		res.send({ code: OTP });
+	} catch (err) {
+		res.status(500).send(err);
 	}
 });
 
