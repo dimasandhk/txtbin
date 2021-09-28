@@ -89,10 +89,19 @@ router.get("/auth-email", async (req, res) => {
 			]
 		});
 
+		res.cookie("vid", Buffer.from(email).toString("base64"));
 		res.send({ code: OTP });
 	} catch (err) {
 		res.status(500).send(err);
 	}
+});
+
+router.get("/isverified", async (req, res) => {
+	const { vid } = req.cookies;
+	const sameEncoded = await TxtBin.findOne({ encoded: vid });
+
+	if (sameEncoded) return res.send({ msg: "User is verified" });
+	res.status(401).send({ error: "User isn't verified" });
 });
 
 module.exports = router;
