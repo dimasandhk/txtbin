@@ -7,6 +7,9 @@ const mailjet = require("node-mailjet").connect(
 	process.env.MJ_APIKEY_PRIVATE
 );
 
+const decode = (b64) => {
+	return Buffer.from(b64, "base64").toString("ascii");
+};
 /* 
 	Flow:
 	- Client input email => verify (/api/auth-email?em={email})
@@ -57,6 +60,8 @@ router.get("/text-info/id/:id", async (req, res) => {
 	}
 });
 
+const OTP = generateOtp();
+
 router.get("/auth-email", async (req, res) => {
 	const email = req.query.em;
 	if (email) {
@@ -64,8 +69,6 @@ router.get("/auth-email", async (req, res) => {
 	} else {
 		return res.status(400).send({ error: "Email Query is required!" });
 	}
-
-	const OTP = generateOtp();
 
 	try {
 		await mailjet.post("send", { version: "v3.1" }).request({
@@ -89,10 +92,18 @@ router.get("/auth-email", async (req, res) => {
 			]
 		});
 
-		res.cookie("vid", Buffer.from(email).toString("base64"));
 		res.send({ code: OTP });
 	} catch (err) {
 		res.status(500).send(err);
+	}
+});
+
+router.get("/verify-user", (req, res) => {
+	const { em, cotp } = req.query;
+	if (!em || !cotp) return res.status(400).send({ error: "Email is required" });
+
+	if (cotp == OTP) {
+		res.cookie("vid", Buffer.from(em).toString("base64"));
 	}
 });
 
