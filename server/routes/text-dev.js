@@ -11,6 +11,11 @@ const generateOtp = require("../utils/OTP");
 const { isEmail } = require("validator");
 
 router.post("/text-create", async (req, res) => {
+	if (!isEmail(req.body.publisher))
+		return res.status(400).send({
+			error: "Email isn't valid"
+		});
+
 	const encoded = Buffer.from(req.body.publisher).toString("base64");
 	const NewText = new TxtBin({ ...req.body, encoded });
 
