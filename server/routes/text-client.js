@@ -6,6 +6,7 @@ const decode = (b64) => {
 };
 
 router.get("/raw/:data", async (req, res) => {
+	// raw/publisher.id
 	const { data } = req.params;
 	const noParams = !data;
 

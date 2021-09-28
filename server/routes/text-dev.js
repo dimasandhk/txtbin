@@ -7,6 +7,13 @@ const mailjet = require("node-mailjet").connect(
 	process.env.MJ_APIKEY_PRIVATE
 );
 
+/* 
+	Flow:
+	- Client input email => verify (/api/auth-email?em={email})
+	- Verified set variable => redir Dashboard
+	- Dashboard => Create Temp Text (/api/text-create)
+*/
+
 const generateOtp = require("../utils/OTP");
 const { isEmail } = require("validator");
 
@@ -16,6 +23,7 @@ router.post("/text-create", async (req, res) => {
 			error: "Email isn't valid"
 		});
 
+	// Encode Email
 	const encoded = Buffer.from(req.body.publisher).toString("base64");
 	const NewText = new TxtBin({ ...req.body, encoded });
 
