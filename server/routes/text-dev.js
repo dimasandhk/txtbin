@@ -60,7 +60,7 @@ router.get("/text-info/id/:id", async (req, res) => {
 	}
 });
 
-const OTP = generateOtp();
+let AUTH_INFO = {};
 
 router.get("/auth-email", async (req, res) => {
 	const email = req.query.em;
@@ -69,6 +69,9 @@ router.get("/auth-email", async (req, res) => {
 	} else {
 		return res.status(400).send({ error: "Email Query is required!" });
 	}
+
+	const OTP = generateOtp();
+	AUTH_INFO = { OTP, email };
 
 	try {
 		await mailjet.post("send", { version: "v3.1" }).request({
@@ -102,16 +105,18 @@ router.get("/verify-user", (req, res) => {
 	const { em, cotp } = req.query;
 	if (!em || !cotp) return res.status(400).send({ error: "Email is required" });
 
-	if (cotp == OTP) {
+	if (parseInt(cotp) == AUTH_INFO.OTP && em == AUTH_INFO.email) {
 		res.cookie("vid", Buffer.from(em).toString("base64"));
+		return res.send("verified");
 	}
+
+	res.status(400).send({ cotp, AUTH_INFO });
 });
 
 router.get("/isverified", async (req, res) => {
 	const { vid } = req.cookies;
-	const sameEncoded = await TxtBin.findOne({ encoded: vid });
 
-	if (sameEncoded) return res.send({ msg: "User is verified" });
+	if (vid) return res.send({ msg: "User is verified" });
 	res.status(401).send({ error: "User isn't verified" });
 });
 
