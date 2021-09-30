@@ -1,0 +1,9 @@
+@mixin mainButton {
+	background-color: darken($color: #42b983, $amount: 15%);
+	border: none !important;
+	font-weight: 500;
+
+	&:focus {
+		background-color: darken($color: #42b983, $amount: 15%);
+	}
+}
