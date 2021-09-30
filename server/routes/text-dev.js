@@ -21,14 +21,14 @@ const generateOtp = require("../utils/OTP");
 const { isEmail } = require("validator");
 
 router.post("/text-create", async (req, res) => {
-	if (!isEmail(req.body.publisher))
+	const vid = req.cookies.vid;
+	if (!isEmail(decode(vid)))
 		return res.status(400).send({
 			error: "Email isn't valid"
 		});
 
 	// Encode Email
-	const encoded = Buffer.from(req.body.publisher).toString("base64");
-	const NewText = new TxtBin({ ...req.body, encoded });
+	const NewText = new TxtBin({ ...req.body, encoded: vid, publisher: decode(vid) });
 
 	try {
 		await NewText.save();
