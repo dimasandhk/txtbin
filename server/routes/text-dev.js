@@ -22,7 +22,8 @@ const { isEmail } = require("validator");
 
 router.post("/text-create", async (req, res) => {
 	const vid = req.cookies.vid;
-	if (!isEmail(decode(vid)))
+	const isValidEmail = isEmail(decode(vid));
+	if (!isValidEmail)
 		return res.status(400).send({
 			error: "Email isn't valid"
 		});
@@ -105,12 +106,14 @@ router.get("/verify-user", (req, res) => {
 	const { em, cotp } = req.query;
 	if (!em || !cotp) return res.status(400).send({ error: "Email is required" });
 
+	if (Object.keys(AUTH_INFO).length) return res.status(401).send({ error: "data isn't valid" });
+
 	if (parseInt(cotp) == AUTH_INFO.OTP && em == AUTH_INFO.email) {
 		res.cookie("vid", Buffer.from(em).toString("base64"));
 		return res.send("verified");
 	}
 
-	res.status(400).send({ cotp, AUTH_INFO });
+	res.status(401).send({ error: "data isn't valid" });
 });
 
 router.get("/isverified", async (req, res) => {
