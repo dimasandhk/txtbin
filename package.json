@@ -4,7 +4,7 @@
 	"description": "Pastebin Clone",
 	"main": "index.js",
 	"scripts": {
-		"dev": "nodemon server/index"
+		"dev": "nodemon server/index --ignore client/"
 	},
 	"author": "Dimas Andhika Diputra",
 	"license": "ISC",

@@ -73,6 +73,7 @@ router.get("/auth-email", async (req, res) => {
 
 	const OTP = generateOtp();
 	AUTH_INFO = { OTP, email };
+	console.log(AUTH_INFO, OTP);
 
 	try {
 		await mailjet.post("send", { version: "v3.1" }).request({
@@ -106,10 +107,12 @@ router.get("/verify-user", (req, res) => {
 	const { em, cotp } = req.query;
 	if (!em || !cotp) return res.status(400).send({ error: "Email is required" });
 
-	if (Object.keys(AUTH_INFO).length) return res.status(401).send({ error: "data isn't valid" });
+	console.log(AUTH_INFO, em, cotp);
+	if (!Object.keys(AUTH_INFO).length) return res.status(401).send({ error: "data isn't valid" });
+	// if (Object.keys(AUTH_INFO).length) return res.status(401).send({ error: "data isn't valid" });
 
 	if (parseInt(cotp) == AUTH_INFO.OTP && em == AUTH_INFO.email) {
-		res.cookie("vid", Buffer.from(em).toString("base64"));
+		res.cookie("vid", Buffer.from(em).toString("base64"), { sameSite: true });
 		return res.send("verified");
 	}
 
@@ -119,8 +122,12 @@ router.get("/verify-user", (req, res) => {
 router.get("/isverified", async (req, res) => {
 	const { vid } = req.cookies;
 
-	if (vid) return res.send({ msg: "User is verified" });
-	res.status(401).send({ error: "User isn't verified" });
+	if (!vid) return res.status(401).send({ error: "User isn't verified" });
+
+	const validEmail = isEmail(decode(vid));
+	if (!validEmail) return res.status(401).send({ error: "User isn't verified" });
+
+	res.send("User is verified");
 });
 
 module.exports = router;
