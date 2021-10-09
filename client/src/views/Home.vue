@@ -1,6 +1,6 @@
 <template>
 	<div class="home container text-center mt-3">
-		<h1>Welcome to Txt<span>Bin></span></h1>
+		<h1>Welcome to Txt<span>Bin</span></h1>
 		<h4>A Place to Paste Your Temporary Text</h4>
 		<div class="row justify-content-center">
 			<div class="col-12 col-md-8 col-lg-8">

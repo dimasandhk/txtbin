@@ -15,4 +15,9 @@ export default class {
 		const res = await (await axios.get("/api/isverified")).data;
 		return res;
 	}
+
+	static async createNewText(text) {
+		const response = await axios.post("/api/text-create", { text });
+		return response.data;
+	}
 }

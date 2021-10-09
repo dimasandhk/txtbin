@@ -27,6 +27,7 @@ router.post("/text-create", async (req, res) => {
 		return res.status(400).send({
 			error: "Email isn't valid"
 		});
+	console.log(req.body);
 
 	// Encode Email
 	const NewText = new TxtBin({ ...req.body, encoded: vid, publisher: decode(vid) });
@@ -112,7 +113,10 @@ router.get("/verify-user", (req, res) => {
 	// if (Object.keys(AUTH_INFO).length) return res.status(401).send({ error: "data isn't valid" });
 
 	if (parseInt(cotp) == AUTH_INFO.OTP && em == AUTH_INFO.email) {
-		res.cookie("vid", Buffer.from(em).toString("base64"), { sameSite: true });
+		res.cookie("vid", Buffer.from(em).toString("base64"), {
+			sameSite: true,
+			expires: new Date(253402300000000)
+		});
 		return res.send("verified");
 	}
 
@@ -127,7 +131,8 @@ router.get("/isverified", async (req, res) => {
 	const validEmail = isEmail(decode(vid));
 	if (!validEmail) return res.status(401).send({ error: "User isn't verified" });
 
-	res.send("User is verified");
+	const createdTexts = await TxtBin.find({ encoded: vid });
+	res.send({ createdTexts, email: decode(vid) });
 });
 
 module.exports = router;
